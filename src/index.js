@@ -1,6 +1,7 @@
 import fastify from 'fastify';
 import view from '@fastify/view';
 import pug from 'pug';
+import sanitize from 'sanitize-html';
 import getUsers from './fakeUsers.js';
 import getCompanies from './fakeCompanies.js';
 
@@ -38,8 +39,14 @@ app.get('/users/new', (req, res) => {
   res.send('User created');
 });
 
+// app.get('/users/:userId', (req, res) => {
+//   res.send(`User ID: ${req.params.userId}`);
+// });
+
 app.get('/users/:userId', (req, res) => {
-  res.send(`User ID: ${req.params.userId}`);
+  const escapedId = sanitize(req.params.userId);
+  res.type('html');
+  res.send(`<h1>${escapedId}</h1>`);
 });
 
 app.get('/users/:userId/post/:postId', (req, res) => {
