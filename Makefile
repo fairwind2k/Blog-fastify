@@ -4,5 +4,5 @@ console:
 test:
 	npm test -s
 
-start:
-	npm nodemon src/index.js
+run:
+	npm start src/index.js
