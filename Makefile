@@ -4,5 +4,7 @@ console:
 test:
 	npm test -s
 
-run:
-	npm start src/index.js
+start:
+	npx nodemon --watch src bin/index.js
+
+
