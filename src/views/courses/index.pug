@@ -1,0 +1,25 @@
+//- <form action="/courses" method="get">
+//-   <input type="search" required name="term">
+//-   <input type="submit" value="Искать">
+//- </form>
+extends ../layouts/page.pug
+
+block content
+    h2.header= 'Courses'
+
+    form(role = 'form' method = 'GET' action = '/courses')
+        input(type = 'search', name = 'term', value = term)
+        input(type = 'submit' value = 'search')
+
+    if term
+        table.table.table-striped
+            tr
+                th ID
+                th Title
+                th Description
+                each course in courses
+                    tr
+                        td
+                            a(href='/courses/' + course.id) #{course.id}
+                        td= course.title
+                        td= course.description
