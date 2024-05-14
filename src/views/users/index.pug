@@ -1,15 +1,18 @@
 extends ../layouts/page.pug
 
 block content
-  h2.header= 'Users'
-  table.table.table-striped
-    tr
-      th ID
-      th Name
-      th Email
-      each user, index in users
+    h3.header= 'Users'
+    form(role = 'form' method = 'GET' action = '/users')
+        input(type = 'search', name = 'term', value = term)
+        input(type = 'submit' value = 'search')
+    table.table.table-striped
         tr
-          td
-            a(href='/users/' + user.id) #{user.id}
-          td= user.username
-          td= user.email
+            th ID
+            th Name
+            th Email
+        each user, index in users
+            tr
+                td
+                    a(href='/users/' + user.id) #{user.id}
+                td= user.username
+                td= user.email
