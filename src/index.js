@@ -1,24 +1,24 @@
 import fastify from 'fastify';
+import formbody from '@fastify/formbody';
 import view from '@fastify/view';
 import pug from 'pug';
 import sanitize from 'sanitize-html';
 import getUsers from './fakeUsers.js';
 import getCompanies from './fakeCompanies.js';
 import getCourses from './fakeCourses.js';
+import { generateId } from './fakeUsers.js';
 
 
 export default async () => {
   const app = fastify();
-  const data = {
-    phones: ['+12345678', '3434343434', '234-56-78'],
-    domains: ['example.com', 'hexlet.io'],
-  };
 
+  await app.register(view, { engine: { pug } });
+  await app.register(formbody);
+  
   const users = getUsers();
   const companies = getCompanies();
   // const courses = getCourses();
 
-  await app.register(view, { engine: { pug } });
 
   app.get('/', (req, res) => res.view('src/views/index'));
 
@@ -32,22 +32,53 @@ export default async () => {
     res.send(greet);
   });
 
-  app.get('/users', (req, res) => {
-    const term = req.query.term;
-    let filtered;
-    if (term !== '' && term !== null) {
-      filtered = users.filter((user) => user.username.toLowerCase().includes(term));
-      console.log('1');
-    } else {
-      console.log('2');
-      res.view('src/views/users/index', { term, users: users });
-    }
-    const data = { term, users: filtered };
-    res.view('src/views/users/index', data);
-  });
+  // app.get('/users', (req, res) => {
+  //   const term = req.query.term;
+  //   let filtered;
+  //   if (term !== '' && term !== null) {
+  //     filtered = users.filter((user) => user.username.toLowerCase().includes(term));
+  //     console.log('1');
+  //   } else {
+  //     console.log('2');
+  //     res.view('src/views/users/index', { term, users: users });
+  //   }
+  //   const data = { term, users: filtered };
+  //   res.view('src/views/users/index', data);
+  // });
     
+  const states = {
+    users: [
+      {
+        id: 1,
+        name: 'user',
+        email: 'user@user.com',
+        password: '123'
+      },
+    ],
+  };  
+
+  app.get('/users', (req, res) => res.send(states));
+
+  // app.get('/search', (req, res) => {
+  //   const { id } = req.query;
+  //   const user = state.users.find(user => user.id === parseInt(id)); // Приведение к одному типу и сравнение
+  //   if (!user) {
+  //     res.code(404).send({ message: 'User not found' })
+  //   } else {
+  //     res.send(user);
+  //   }
+  // });
+
   app.post('/users', (req, res) => {
-    res.send('POST /users');
+    const parsedData = {
+      name: req.body.name.trim(),
+      email: req.body.email.trim().toLowerCase(),
+      password: req.body.password,
+    };
+    const user = { id:generateId(), ...parsedData};
+    states.users.push(user);
+    //res.send(user);
+    res.redirect('/users');
   });
 
   app.get('/users/new', (req, res) => {
@@ -76,6 +107,11 @@ export default async () => {
   app.get('/users/:userId/post/:postId', (req, res) => {
     res.send(`User ID: ${req.params.userId}; Post ID: ${req.params.postId}`);
   });
+
+  const data = {
+    phones: ['+12345678', '3434343434', '234-56-78'],
+    domains: ['example.com', 'hexlet.io'],
+  };
 
   app.get('/phones', (req, res) => {
     res.send(data.phones);
@@ -125,8 +161,20 @@ export default async () => {
     ];
 
   app.get('/courses/new', (req, res) => {
-    res.send('Course build');
+    res.view('src/views/courses/new');
   });
+
+  app.post('/courses', (req, res) => {
+    const parsedDataCourse = {
+      title: req.body.title.trim(),
+      description: req.body.description.trim(),
+    };
+    const newCourse = { id:generateId(), ...parsedDataCourse};
+    courses.push(newCourse);
+    // res.send(newCourse);
+    res.redirect('/courses');
+  });
+
 
   //  get all courses in one page:
   //
@@ -136,18 +184,22 @@ export default async () => {
   //   res.view('src/views/courses/index', { data });
   // });
 
+  // app.get('/courses', (req, res) => {
+  //   const term = req.query.term;
+  //   let selectedCourses;
+  //   if (term !== '') {
+  //     // Фильтруем курсы по term
+  //     selectedCourses = courses.filter((item) => item.title === term);
+  //   } else {
+  //     // Извлекаем все курсы, которые хотим показать
+  //     selectedCourses = courses.slice(0, 2);
+  //   }  
+  //   const data = { term, courses: selectedCourses };  
+  //   res.view('src/views/courses/index', data);
+  // });
+
   app.get('/courses', (req, res) => {
-    const term = req.query.term;
-    let selectedCourses;
-    if (term !== '') {
-      // Фильтруем курсы по term
-      selectedCourses = courses.filter((item) => item.title === term);
-    } else {
-      // Извлекаем все курсы, которые хотим показать
-      selectedCourses = courses.slice(0, 2);
-    }  
-    const data = { term, courses: selectedCourses };  
-    res.view('src/views/courses/index', data);
+    res.send(courses);
   });
   
   app.get('/courses/:id', (req, res) => {
