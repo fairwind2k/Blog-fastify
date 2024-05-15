@@ -11,6 +11,7 @@
   "author": "fairwind",
   "license": "ISC",
   "dependencies": {
+    "@fastify/formbody": "^7.4.0",
     "@fastify/view": "^9.0.0",
     "fastify": "^4.26.2",
     "nodemon": "^3.1.0",
