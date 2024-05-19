@@ -1,6 +1,7 @@
 import fastify from 'fastify';
 import formbody from '@fastify/formbody';
 import view from '@fastify/view';
+import yup from 'yup';
 import pug from 'pug';
 import sanitize from 'sanitize-html';
 import getUsers from './fakeUsers.js';
@@ -69,13 +70,52 @@ export default async () => {
   //   }
   // });
 
-  app.post('/users', (req, res) => {
-    const parsedData = {
-      name: req.body.name.trim(),
-      email: req.body.email.trim().toLowerCase(),
-      password: req.body.password,
+  app.post('/users', {
+    attachValidation: true,
+    schema: {
+      body: yup.object({
+        name: yup.string().min(2),
+        email: yup.string().email(),
+        password: yup.string().min(5),
+        passwordConfirmation: yup.string().min(5),
+      }),
+    },
+    validatorCompiler: ({ schema, method, url, httpPart }) => (data) => {
+      if (data.password !== data.passwordConfirmation) {
+        return {
+          error: Error('Password confirmation is not equal the password'),
+        };
+      }
+      try {
+        const result = schema.validateSync(data);
+        return { value: result };
+      } catch (e) {
+        return { error: e };
+      }
+    },
+  } , (req, res) => {
+    const { name, email, password, passwordConfirmation } = req.body;
+
+    const userData = {
+      name: name.trim(),
+      email: email.trim(),
+      password: password,
+      passwordConfirmation: passwordConfirmation,
     };
-    const user = { id:generateId(), ...parsedData};
+    if (req.validationError) {
+      const data = { 
+        ...userData,
+        error: req.validationError,
+      };  
+      res.view('src/views/users/new', data);
+      return;
+    };    
+    const user = { 
+      id:generateId(),
+      name: userData.name,
+      email: userData.email,
+      password: userData.password
+    };
     states.users.push(user);
     //res.send(user);
     res.redirect('/users');
@@ -164,14 +204,38 @@ export default async () => {
     res.view('src/views/courses/new');
   });
 
-  app.post('/courses', (req, res) => {
-    const parsedDataCourse = {
+  app.post('/courses', {
+    attachValidation: true,
+    schema: {
+      body: yup.object({
+        title: yup.string().min(2),
+        description: yup.string().min(5),
+      }),
+    },
+    validatorCompiler: ({ schema, method, url, httpPart }) => (data) => {
+      try {
+        const result = schema.validateSync(data);
+        return { value: result };
+      } catch (e) {
+        return { error: e };
+      }
+    },
+  }, (req, res) => {
+    const dataCourse = {
       title: req.body.title.trim(),
       description: req.body.description.trim(),
     };
-    const newCourse = { id:generateId(), ...parsedDataCourse};
+    if (req.validationError) {
+      const data = {
+        ...dataCourse,
+        error: req.validationError,
+      };
+      res.view('src/views/courses/new', data);
+      return;
+    }  
+    const newCourse = { id:generateId(), ...dataCourse};
     courses.push(newCourse);
-    // res.send(newCourse);
+    //res.send(newCourse);
     res.redirect('/courses');
   });
 
