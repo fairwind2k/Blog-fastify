@@ -16,7 +16,8 @@
     "fastify": "^4.26.2",
     "nodemon": "^3.1.0",
     "pug": "^3.0.2",
-    "sanitize-html": "^2.13.0"
+    "sanitize-html": "^2.13.0",
+    "yup": "^1.4.0"
   },
   "devDependencies": {
     "@faker-js/faker": "^8.4.1"
