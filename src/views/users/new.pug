@@ -7,14 +7,14 @@ block content
     form(action = '/users', method = 'post')
         div
             label name:
-                input(type = 'text', name = 'name')
+                input(type = 'text', name = 'name', value = name)
         div
             label email:
-                input(type = 'email', name = 'email', required = true)
+                input(type = 'email', name = 'email', required = true, value = email)
         div
             label password:
-                input(type = 'password', name = 'password', required = true)
+                input(type = 'password', name = 'password', required = true, value = password)
         div
             label password confirmation:
-                input(type = 'password', name = 'passwordConfirmation', required = true)
+                input(type = 'password', name = 'passwordConfirmation', required = true, value = passwordConfirmation)
         input(type = 'submit', value = 'Submit')
