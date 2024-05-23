@@ -33,19 +33,19 @@ export default async () => {
     res.send(greet);
   });
 
-  // app.get('/users', (req, res) => {
-  //   const term = req.query.term;
-  //   let filtered;
-  //   if (term !== '' && term !== null) {
-  //     filtered = users.filter((user) => user.username.toLowerCase().includes(term));
-  //     console.log('1');
-  //   } else {
-  //     console.log('2');
-  //     res.view('src/views/users/index', { term, users: users });
-  //   }
-  //   const data = { term, users: filtered };
-  //   res.view('src/views/users/index', data);
-  // });
+  app.get('/users', (req, res) => {
+    const term = req.query.term;
+    let filtered;
+    if (term !== '' && term !== null) {
+      filtered = users.filter((user) => user.username.toLowerCase().includes(term));
+      console.log('1');
+    } else {
+      console.log('2');
+      res.view('src/views/users/index', { term, users: users });
+    }
+    const data = { term, users: filtered };
+    res.view('src/views/users/index', data);
+  });
     
   const states = {
     users: [
@@ -58,7 +58,7 @@ export default async () => {
     ],
   };  
 
-  app.get('/users', (req, res) => res.send(states));
+  // app.get('/users', (req, res) => res.send(states));
 
   // app.get('/search', (req, res) => {
   //   const { id } = req.query;
