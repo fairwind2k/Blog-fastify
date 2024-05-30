@@ -2,7 +2,7 @@ extends ../layouts/page.pug
 
 block content
     h3.header= 'Users'
-    form(role = 'form' method = 'GET' action = '/users')
+    form(role = 'form' method = 'GET' action = route('users'))
         input(type = 'search', name = 'term', value = term)
         input(type = 'submit' value = 'search')
     table.table.table-striped
