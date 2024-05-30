@@ -4,22 +4,84 @@ import view from '@fastify/view';
 import yup from 'yup';
 import pug from 'pug';
 import sanitize from 'sanitize-html';
-import getUsers from './fakeUsers.js';
-import getCompanies from './fakeCompanies.js';
-import getCourses from './fakeCourses.js';
+import getUsers from 'util/fakeUsers.js';
+import { plugin as fastifyReverseRoutes } from 'fastify-reverse-routes';
+import getCompanies from 'util/fakeCompanies.js';
+import getCourses from 'util/fakeCourses.js';
 import { generateId } from './fakeUsers.js';
 
 
 export default async () => {
-  const app = fastify();
+  const app = fastify({ exposeHeadRoutes: false });
+  const route = (name, placeholdersValues) => app.reverse(name, placeholdersValues);
 
-  await app.register(view, { engine: { pug } });
+  await app.register(view, {
+    engine: { pug },
+    defaultContext: {
+      route,
+    },
+  });
   await app.register(formbody);
-  
+  await app.register(fastifyReverseRoutes);
+
   const users = getUsers();
   const companies = getCompanies();
   // const courses = getCourses();
 
+  const courses =
+  [
+     {
+       id: 1,
+       title: 'JS: Массивы',
+       description: 'Курс про массивы в JavaScript',
+     },
+     {
+       id: 2,
+       title: 'JS: Функции',
+       description: 'Курс про функции в JavaScript',
+     },
+     {
+       id: 3,
+       title: 'JS: Объекты',
+       description: 'Курс про объекты в JavaScript',
+     },
+   ];
+
+     // const state = {
+  //   courses: [
+  //     {
+  //       id: 1,
+  //       title: 'JS: Массивы',
+  //       description: 'Курс про массивы в JavaScript',
+  //     },
+  //     {
+  //       id: 2,
+  //       title: 'JS: Функции',
+  //       description: 'Курс про функции в JavaScript',
+  //     },
+  //     {
+  //       id: 3,
+  //       title: 'JS: Объекты',
+  //       description: 'Курс про объекты в JavaScript',
+  //     },
+  //   ],
+  // };
+
+  const states = {
+    users: [
+      {
+        id: 1,
+        name: 'user',
+        email: 'user@user.com',
+        password: '123'
+      },
+    ],
+  };  
+
+   const data = {
+    phones: ['+12345678', '3434343434', '234-56-78'],
+    domains: ['example.com', 'hexlet.io'],
+  };
 
   app.get('/', (req, res) => res.view('src/views/index'));
 
@@ -33,30 +95,17 @@ export default async () => {
     res.send(greet);
   });
 
-  app.get('/users', (req, res) => {
+  app.get('/users', { name: 'users'}, (req, res) => {
     const term = req.query.term;
-    let filtered;
-    if (term !== '' && term !== null) {
-      filtered = users.filter((user) => user.username.toLowerCase().includes(term));
-      console.log('1');
+    let filtered = users;
+    if (term) {
+      filtered = users.filter((user) => user.username.toLowerCase().includes(term.toLowerCase()));
     } else {
-      console.log('2');
-      res.view('src/views/users/index', { term, users: users });
+      res.view('src/views/users/index', { users });
     }
-    const data = { term, users: filtered };
-    res.view('src/views/users/index', data);
+    res.view('src/views/users/index', { users: filtered });
   });
     
-  const states = {
-    users: [
-      {
-        id: 1,
-        name: 'user',
-        email: 'user@user.com',
-        password: '123'
-      },
-    ],
-  };  
 
   // app.get('/users', (req, res) => res.send(states));
 
@@ -69,6 +118,10 @@ export default async () => {
   //     res.send(user);
   //   }
   // });
+
+  app.get('/users/new', (req, res) => {
+    res.view('src/views/users/new');
+  });
 
   app.post('/users', {
     attachValidation: true,
@@ -112,17 +165,14 @@ export default async () => {
     };    
     const user = { 
       id:generateId(),
-      name: userData.name,
+      username: userData.name,
       email: userData.email,
       password: userData.password
     };
-    states.users.push(user);
+    //states.users.push(user);
+    users.push(user);
     //res.send(user);
-    res.redirect('/users');
-  });
-
-  app.get('/users/new', (req, res) => {
-    res.view('src/views/users/new');
+    res.redirect(app.reverse('users'), { users });
   });
 
   // app.get('/users/:userId', (req, res) => {
@@ -148,11 +198,6 @@ export default async () => {
     res.send(`User ID: ${req.params.userId}; Post ID: ${req.params.postId}`);
   });
 
-  const data = {
-    phones: ['+12345678', '3434343434', '234-56-78'],
-    domains: ['example.com', 'hexlet.io'],
-  };
-
   app.get('/phones', (req, res) => {
     res.send(data.phones);
   });
@@ -161,44 +206,23 @@ export default async () => {
     res.send(data.domains);
   });
 
-  // const state = {
-  //   courses: [
-  //     {
-  //       id: 1,
-  //       title: 'JS: Массивы',
-  //       description: 'Курс про массивы в JavaScript',
-  //     },
-  //     {
-  //       id: 2,
-  //       title: 'JS: Функции',
-  //       description: 'Курс про функции в JavaScript',
-  //     },
-  //     {
-  //       id: 3,
-  //       title: 'JS: Объекты',
-  //       description: 'Курс про объекты в JavaScript',
-  //     },
-  //   ],
-  // };
+  app.get('/courses', { name: 'courses'}, (req, res) => {
+    const term = req.query.term;
+    let selectedCourses = courses;
+    if (term) {
+      // Фильтруем курсы по term
+      selectedCourses = courses.filter((item) => item.title.toLowerCase().includes(term.toLowerCase()));
+    } else {
 
-  const courses =
-   [
-      {
-        id: 1,
-        title: 'JS: Массивы',
-        description: 'Курс про массивы в JavaScript',
-      },
-      {
-        id: 2,
-        title: 'JS: Функции',
-        description: 'Курс про функции в JavaScript',
-      },
-      {
-        id: 3,
-        title: 'JS: Объекты',
-        description: 'Курс про объекты в JavaScript',
-      },
-    ];
+    //   // Извлекаем все курсы, которые хотим показать
+      selectedCourses = courses.slice(0, 2);
+     }  
+    res.view('src/views/courses/index', { courses: selectedCourses });
+  });
+
+  // app.get('/courses', (req, res) => {
+  //   res.send(courses);
+  // });
 
   app.get('/courses/new', (req, res) => {
     res.view('src/views/courses/new');
@@ -248,23 +272,7 @@ export default async () => {
   //   res.view('src/views/courses/index', { data });
   // });
 
-  // app.get('/courses', (req, res) => {
-  //   const term = req.query.term;
-  //   let selectedCourses;
-  //   if (term !== '') {
-  //     // Фильтруем курсы по term
-  //     selectedCourses = courses.filter((item) => item.title === term);
-  //   } else {
-  //     // Извлекаем все курсы, которые хотим показать
-  //     selectedCourses = courses.slice(0, 2);
-  //   }  
-  //   const data = { term, courses: selectedCourses };  
-  //   res.view('src/views/courses/index', data);
-  // });
 
-  app.get('/courses', (req, res) => {
-    res.send(courses);
-  });
   
   app.get('/courses/:id', (req, res) => {
     const escapedCourseId = sanitize(req.params.id);
