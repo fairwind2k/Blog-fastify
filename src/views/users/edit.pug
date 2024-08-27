@@ -1,0 +1,20 @@
+extends ../layouts/page.pug
+
+block content
+  if error
+    p= error.message 
+
+  form(action=route('users', { id: user.id }) method='post')
+    div
+      label name:
+        input(id= "name" name= "name" value= user.name)
+    div
+      label email:
+        input(id= "email" name= "email" value= user.email)
+    div
+      label password:
+        input(id= "password" name= "password" value= user.password)
+    div
+      label password confirmation:
+        input(id= "passwordConfirmation" name= "passwordConfirmation" value= user.passwordConfirmation)
+    input(type = 'submit', value = 'Submit')
