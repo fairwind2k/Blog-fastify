@@ -9,6 +9,6 @@ const createRandomCourse = () => ({
 export default () => {
   faker.seed(25);
   return faker.helpers.multiple(createRandomCourse, {
-    count: 20,
+    count: 10,
   });
 };
