@@ -17,4 +17,5 @@ block content
     div
       label password confirmation:
         input(id= "passwordConfirmation" name= "passwordConfirmation" value= user.passwordConfirmation)
+    input(name="_method" type="hidden" value="patch")
     input(type = 'submit', value = 'Submit')
