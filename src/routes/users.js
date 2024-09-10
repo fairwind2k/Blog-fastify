@@ -5,19 +5,22 @@ import { generateId } from '../utils/fakeUsers.js';
 
 export default (app, db) => {
 
-    const users = getUsers();
+    //const users = getUsers();
 
-    const states = {
-        users: [
-          {
-            id: 1,
-            name: 'user',
-            email: 'user@user.com',
-            password: '12345'
-          },
-        ],
-      }; 
-
+    const users = [
+      {
+        id: 1,
+        name: 'first user',
+        email: 'first@user.com',
+        password: 'user12345'
+      },
+      {
+        id: 2,
+        name: 'Second User',
+        email: 'second@user.com',
+        password: 'user12345'
+      },
+    ];
 
     // Get a list of users:
     app.get('/users', { name: 'users'}, (req, res) => {
@@ -92,9 +95,11 @@ export default (app, db) => {
     //Find a specific user: 
     app.get('/users/:userId', (req, res) => {
         const escapedId = sanitize(req.params.userId);
-        const user = users.find(({ id }) => id === escapedId);
+        //const user = users.find(({ id }) => id === escapedId);
+        // test number id:
+        const user = users.find(({ id }) => id === parseInt(escapedId));
         if (!user) {
-            return res.status(404).send('User not found');
+          return res.status(404).send('User not found');
         }
         return res.view('src/views/users/show', { user });
     });
@@ -103,11 +108,37 @@ export default (app, db) => {
     // Form for en editing specific user:
     app.get('/users/:id/edit', (req, res) => {
       const { id } = req.params;
-      const user = states.users.find((item) => item.id === parseInt(id));
+      const user = users.find((item) => item.id === parseInt(id));
       if (!user) {
         res.code(404).send({ message: 'User not found' });
       } else {
         res.view('src/views/users/edit', { user });
+      }
+    });
+
+    // Обновление пользователя
+    app.patch('/users/:id', (req, res) => {
+      const { id } = req.params;
+      const { name, email, password, passwordConfirmation, } = req.body;
+      const userIndex = users.findIndex((item) => item.id === parseInt(id));
+      if (userIndex === -1) {
+        res.code(404).send({ message: 'User not found' });
+      } else {
+        users[userIndex] = { ...users[userIndex], name, email };
+        res.send(users[userIndex]);
+        res.redirect('/users');
+      }
+    });
+
+    // Удаление пользователя
+    app.delete('/users/:id', (req, res) => {
+      const { id } = req.params;
+      const userIndex = states.users.findIndex((item) => item.id === parseInt(id));
+      if (userIndex === -1) {
+        res.code(404).send({ message: 'User not found' });
+      } else {
+        states.users.splice(userIndex, 1);
+        res.redirect('/users');
       }
     });
   
