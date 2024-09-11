@@ -27,7 +27,7 @@ export default (app, db) => {
         const term = req.query.term;
         let filtered = users;
         if (term) {
-          filtered = users.filter((user) => user.username.toLowerCase().includes(term.toLowerCase()));
+          filtered = users.filter((user) => user.name.toLowerCase().includes(term.toLowerCase()));
         } else {
           res.view('src/views/users/index', { users });
         }
@@ -82,7 +82,7 @@ export default (app, db) => {
         };    
         const user = { 
           id:generateId(),
-          username: userData.name,
+          name: userData.name,
           email: userData.email,
           password: userData.password
         };
@@ -140,7 +140,7 @@ export default (app, db) => {
         res.code(404).send({ message: 'User not found' });
       } else {
         users.splice(userIndex, 1);
-        res.redirect('/users');
+        res.redirect(app.reverse('users'));
       }
     });
   

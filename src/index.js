@@ -1,9 +1,9 @@
 import fastify from 'fastify';
 import formbody from '@fastify/formbody';
 import view from '@fastify/view';
-
 import pug from 'pug';
 import { plugin as fastifyReverseRoutes } from 'fastify-reverse-routes';
+import fastifyMethodOverride from 'fastify-method-override';
 
 import getCompanies from './utils/fakeCompanies.js';
 
@@ -21,6 +21,9 @@ export default async () => {
   });
   await app.register(formbody);
   await app.register(fastifyReverseRoutes);
+  await app.register(fastifyMethodOverride, {
+    methods: ['PATCH', 'DELETE']  
+  });
 
   const companies = getCompanies();
   // const courses = getCourses();
@@ -51,7 +54,8 @@ export default async () => {
     res.send(data.domains);
   });
   
-  // addRoutes(app, db);
+  // app.register(fastifyMethodOverride);
+   // addRoutes(app, db);
   addRoutes(app);
   return app;
 };

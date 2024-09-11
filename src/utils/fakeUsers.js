@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker';
 
 const createRandomUser = () => ({
   id: faker.string.uuid(),
-  username: faker.internet.userName(),
+  name: faker.internet.userName(),
   email: faker.internet.email(),
 });
 
