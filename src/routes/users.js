@@ -120,14 +120,12 @@ export default (app, db) => {
     app.patch('/users/:id', (req, res) => {
       const { id } = req.params;
       const { name, email, password, passwordConfirmation, } = req.body;
-      console.log('users-A, users');
       const userIndex = users.findIndex((item) => item.id === parseInt(id));
       if (userIndex === -1) {
         res.code(404).send({ message: 'User not found' });
       } else {
         users[userIndex] = { ...users[userIndex], name, email };
-        console.log('users-B, users');
-        res.send(users[userIndex]);
+    //    res.send(users[userIndex]);
         res.redirect('/users');
       }
     });

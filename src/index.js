@@ -21,9 +21,7 @@ export default async () => {
   });
   await app.register(formbody);
   await app.register(fastifyReverseRoutes);
-  await app.register(fastifyMethodOverride, {
-    methods: ['PATCH', 'DELETE']  
-  });
+  await app.register(fastifyMethodOverride);
 
   const companies = getCompanies();
   // const courses = getCourses();
@@ -54,7 +52,6 @@ export default async () => {
     res.send(data.domains);
   });
   
-  // app.register(fastifyMethodOverride);
    // addRoutes(app, db);
   addRoutes(app);
   return app;
