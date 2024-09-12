@@ -35,7 +35,7 @@ export default (app, db) => {
       });
 
     // Form for creating new user:
-    app.get('/users/new', (req, res) => {
+    app.get('/users/new', { name: 'newUser' }, (req, res) => {
         res.view('src/views/users/new');
     });
 
@@ -93,7 +93,7 @@ export default (app, db) => {
       });
 
     //Find a specific user: 
-    app.get('/users/:userId', (req, res) => {
+    app.get('/users/:userId', { name: 'user' }, (req, res) => {
         const escapedId = sanitize(req.params.userId);
         //const user = users.find(({ id }) => id === escapedId);
         // test number id:
@@ -106,7 +106,7 @@ export default (app, db) => {
 
 
     // Form for en editing specific user:
-    app.get('/users/:id/edit', (req, res) => {
+    app.get('/users/:id/edit',  { name: 'editUser' }, (req, res) => {
       const { id } = req.params;
       const user = users.find((item) => item.id === parseInt(id));
       if (!user) {
@@ -117,7 +117,7 @@ export default (app, db) => {
     });
 
     // Обновление пользователя
-    app.patch('/users/:id', (req, res) => {
+    app.patch('/users/:id', { name: 'updateUser' }, (req, res) => {
       const { id } = req.params;
       const { name, email, password, passwordConfirmation, } = req.body;
       const userIndex = users.findIndex((item) => item.id === parseInt(id));
@@ -125,8 +125,11 @@ export default (app, db) => {
         res.code(404).send({ message: 'User not found' });
       } else {
         users[userIndex] = { ...users[userIndex], name, email };
-    //    res.send(users[userIndex]);
-        res.redirect('/users');
+        // res.send(users[userIndex]);
+        // in this sample we need convert number to string again:
+        const stringId = id.toString();
+        res.redirect(app.reverse('updateUser', { id: stringId }));
+        // res.redirect('/users');
       }
     });
 

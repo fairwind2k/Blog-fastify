@@ -4,8 +4,8 @@ block content
   if error
     p= error.message 
 
-  // form(action=route('users', { id: user.id }) method='post')
-  form(action=`/users/${user.id}` method='post')
+  // form(action=`/users/${user.id}` method='post')
+  form(action=route('updateUser', { id: user.id }) method='post')
     div
       label name:
         input(id= "name" name= "name" value= user.name)
