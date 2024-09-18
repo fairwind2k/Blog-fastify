@@ -134,9 +134,9 @@ export default (app, db) => {
     });
 
     // Удаление пользователя
-    app.delete('/users/:id', (req, res) => {
+    app.delete('/users/:id', { name: 'deleteUser' }, (req, res) => {
       const { id } = req.params;
-      const userIndex = states.users.findIndex((item) => item.id === parseInt(id));
+      const userIndex = users.findIndex((item) => item.id === parseInt(id));
       if (userIndex === -1) {
         res.code(404).send({ message: 'User not found' });
       } else {
