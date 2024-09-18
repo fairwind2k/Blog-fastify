@@ -60,10 +60,6 @@ export default (app, db) => {
     res.view("src/views/courses/index", { courses: selectedCourses });
   });
 
-    // app.get('/courses', (req, res) => {
-    //   res.send(courses);
-    // });
-
   app.get('/courses/new', (req, res) => {
     res.view('src/views/courses/new');
   });
@@ -133,8 +129,46 @@ export default (app, db) => {
   });
 
   app.get('/courses/:courseId/lessons/:lessonId', (req, res) => {
-  res.send(`Course ID: ${req.params.courseId}; Lesson ID: ${req.params.lessonId}`);
-  }); 
+    res.send(`Course ID: ${req.params.courseId}; Lesson ID: ${req.params.lessonId}`);
+  });
+
+  // Form for en editing specific course:
+  app.get('/courses/:id/edit',  { name: 'editCourse' }, (req, res) => {
+    const { id } = req.params;
+    const course = courses.find((item) => item.id === parseInt(id));
+    if (!course) {
+      res.code(404).send({ message: 'Course not found' });
+    } else {
+      res.view('src/views/courses/edit', { course });
+    }
+  });
+
+  // Updating specific course:
+  app.patch('/courses/:id', { name: 'updateCourse' }, (req, res) => {
+    const { id } = req.params;
+    const { title, description } = req.body;
+    const courseIndex = courses.findIndex((item) => item.id === parseInt(id));
+    if (courseIndex === -1) {
+      res.code(404).send({ message: 'User not found' });
+    } else {
+      courses[courseIndex] = { ...courses[courseIndex], title, description };
+      // in this sample we need convert number to string again:
+      const stringId = id.toString();
+      res.redirect(app.reverse('updateCourse', { id: stringId }));
+    }
+  });
+
+  // Deleting a specific course:
+  app.delete('/courses/:id', { name: 'deleteCourse' }, (req, res) => {
+    const { id } = req.params;
+    const courseIndex = courses.findIndex((item) => item.id === parseInt(id));
+    if (courseIndex === -1) {
+      res.code(404).send({ message: 'Course not found' });
+    } else {
+      courses.splice(courseIndex, 1);
+      res.redirect(app.reverse('courses'));
+    }
+  });
 
     
 };
