@@ -2,6 +2,7 @@ import fastify from 'fastify';
 import formbody from '@fastify/formbody';
 import view from '@fastify/view';
 import pug from 'pug';
+import fastifyCookie from '@fastify/cookie';
 import { plugin as fastifyReverseRoutes } from 'fastify-reverse-routes';
 import fastifyMethodOverride from 'fastify-method-override';
 
@@ -20,20 +21,33 @@ export default async () => {
     },
   });
   await app.register(formbody);
+  await app.register(fastifyCookie);
   await app.register(fastifyReverseRoutes);
   await app.register(fastifyMethodOverride);
-
-  const companies = getCompanies();
-  // const courses = getCourses();
-
   
-   const data = {
+  const companies = getCompanies();
+ 
+  const data = {
     phones: ['+12345678', '3434343434', '234-56-78'],
     domains: ['example.com', 'hexlet.io'],
   };
 
-  app.get('/', (req, res) => res.view('src/views/index'));
+  // app.get('/cookies', (req, res) => {
+  //   console.log(req.cookies);  
+  //   res.send();
+  // });
+  
+  app.get('/', (req, res) => {
+    const visited = req.cookies.visited;
+    const templateData = {
+      visited,
+    };
+    res.cookie('visited', true);  
+    res.view('src/views/index', templateData);
+  });
 
+  // app.get('/', (req, res) => res.view('src/views/index'));
+  
   app.get('/hello', (req, res)=> {
     let greet;
     if (req.query.name) {
