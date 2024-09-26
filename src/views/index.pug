@@ -1,20 +1,20 @@
 extends ./layouts/layout.pug
 block content
-    main
-    h1 Привет Хекслет!
-    - const visited = true
-    if !visited
+   main
+   h1 Привет Хекслет!
+    
+   if !visited
       | Это сообщение показывается только один раз. Если вы хотите увидеть его снова, сотрите куки
    
-    div
-        h3 Hello, World!
-        p
-        p Fastify + Pug
+   div
+      h3 Hello, World!
+      p
+      p Fastify + Pug
 
-    div
-       h3
-          a(href=route('users')) Users
+   div
+      h3
+         a(href=route('users')) Users
 
-    div
-       h3
-          a(href=route('courses')) Courses
+   div
+      h3
+         a(href=route('courses')) Courses
