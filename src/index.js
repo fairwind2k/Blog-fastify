@@ -4,11 +4,12 @@ import view from '@fastify/view';
 import pug from 'pug';
 // import fastifyCookie from '@fastify/cookie';
 import fastifyCookie from 'fastify-cookie';
+// import fastifySession from '@fastify/secure-session';
+import session from 'fastify-session';
+import flash from '@fastify/flash';
 import { plugin as fastifyReverseRoutes } from 'fastify-reverse-routes';
 import fastifyMethodOverride from 'fastify-method-override';
-
 import getCompanies from './utils/fakeCompanies.js';
-
 import addRoutes from './routes/index.js';
 
 export default async () => {
@@ -25,7 +26,12 @@ export default async () => {
   await app.register(fastifyReverseRoutes);
   await app.register(fastifyMethodOverride);
   await app.register(fastifyCookie);
-  
+  await app.register(session, {
+    secret: 'a secret with minimum length of 32 characters',
+    cookie: { secure: false },
+  });
+  await app.register(flash);
+
   const companies = getCompanies();
  
   const data = {
@@ -46,6 +52,13 @@ export default async () => {
     res.cookie('visited', true);  
     res.view('src/views/index', templateData);
   });
+
+  // app.get('/increment', (req, res) => {
+  //   req.session.counter = req.session.counter || 0;
+  //   req.session.counter += 1;
+  //   res.send(`Counter incremented: ${req.session.counter}`);
+  // });
+  
 
   // app.get('/', (req, res) => res.view('src/views/index'));
   
