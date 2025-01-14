@@ -11,21 +11,22 @@
   "author": "fairwind",
   "license": "ISC",
   "dependencies": {
-    "@fastify/flash": "^4.0.0",
-    "@fastify/formbody": "^7.4.0",
+    "@fastify/cookie": "^11.0.2",
+    "@fastify/flash": "^6.0.3",
+    "@fastify/formbody": "^8.0.2",
     "@fastify/secure-session": "^8.1.1",
-    "@fastify/view": "^9.0.0",
-    "fastify": "4.26.2",
-    "fastify-cookie": "^5.7.0",
+    "@fastify/view": "^10.0.2",
+    "fastify": "5.2.1",
     "fastify-method-override": "^1.5.10",
+    "fastify-method-override-wrapper": "^1.0.6",
     "fastify-reverse-routes": "^3.0.0",
     "fastify-session": "^5.2.1",
-    "nodemon": "^3.1.0",
-    "pug": "^3.0.2",
-    "sanitize-html": "^2.13.0",
-    "yup": "^1.4.0"
+    "nodemon": "^3.1.9",
+    "pug": "^3.0.3",
+    "sanitize-html": "^2.14.0",
+    "yup": "^1.6.1"
   },
   "devDependencies": {
-    "@faker-js/faker": "^8.4.1"
+    "@faker-js/faker": "^9.3.0"
   }
 }

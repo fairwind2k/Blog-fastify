@@ -2,13 +2,14 @@ import fastify from 'fastify';
 import formbody from '@fastify/formbody';
 import view from '@fastify/view';
 import pug from 'pug';
-// import fastifyCookie from '@fastify/cookie';
-import fastifyCookie from 'fastify-cookie';
-// import fastifySession from '@fastify/secure-session';
-import session from 'fastify-session';
+import fastifyCookie from '@fastify/cookie';
+// import fastifyCookie from 'fastify-cookie';
+import session from '@fastify/secure-session';
+// import session from 'fastify-session';
 import flash from '@fastify/flash';
 import { plugin as fastifyReverseRoutes } from 'fastify-reverse-routes';
-import fastifyMethodOverride from 'fastify-method-override';
+// import fastifyMethodOverride from 'fastify-method-override';
+import wrapFastify from 'fastify-method-override-wrapper';
 import getCompanies from './utils/fakeCompanies.js';
 import addRoutes from './routes/index.js';
 
@@ -24,7 +25,8 @@ export default async () => {
   });
   await app.register(formbody);
   await app.register(fastifyReverseRoutes);
-  await app.register(fastifyMethodOverride);
+  // await app.register(fastifyMethodOverride);
+  await app.register(wrapFastify);
   await app.register(fastifyCookie);
   await app.register(session, {
     secret: 'a secret with minimum length of 32 characters',
