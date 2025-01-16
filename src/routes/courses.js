@@ -9,17 +9,17 @@ export default (app, db) => {
 
   const courses = [
     {
-      id: 1,
+      id: '1a',
       title: "JS: Массивы",
       description: "Курс про массивы в JavaScript",
     },
     {
-      id: 2,
+      id: '2a',
       title: "JS: Функции",
       description: "Курс про функции в JavaScript",
     },
     {
-      id: 3,
+      id: '3a',
       title: "JS: Объекты",
       description: "Курс про объекты в JavaScript",
     },
@@ -55,7 +55,7 @@ export default (app, db) => {
       );
     } else {
       //   // Извлекаем все курсы, которые хотим показать
-      selectedCourses = courses.slice(0, 2);
+      selectedCourses = courses.slice(0, 5);
     }
     res.view("src/views/courses/index", { courses: selectedCourses });
   });
@@ -101,7 +101,7 @@ export default (app, db) => {
       const newCourse = { id: generateId(), ...dataCourse };
       courses.push(newCourse);
       //res.send(newCourse);
-      res.redirect(app.reverse('courses'), { courses });
+      res.redirect(app.reverse('courses'));
     }
   );
 
@@ -135,7 +135,7 @@ export default (app, db) => {
   // Form for en editing specific course:
   app.get('/courses/:id/edit',  { name: 'editCourse' }, (req, res) => {
     const { id } = req.params;
-    const course = courses.find((item) => item.id === parseInt(id));
+    const course = courses.find((item) => item.id === id);
     if (!course) {
       res.code(404).send({ message: 'Course not found' });
     } else {
@@ -147,21 +147,21 @@ export default (app, db) => {
   app.patch('/courses/:id', { name: 'updateCourse' }, (req, res) => {
     const { id } = req.params;
     const { title, description } = req.body;
-    const courseIndex = courses.findIndex((item) => item.id === parseInt(id));
+    const courseIndex = courses.findIndex((item) => item.id === id);
     if (courseIndex === -1) {
       res.code(404).send({ message: 'User not found' });
     } else {
       courses[courseIndex] = { ...courses[courseIndex], title, description };
       // in this sample we need convert number to string again:
-      const stringId = id.toString();
-      res.redirect(app.reverse('updateCourse', { id: stringId }));
+      // const stringId = id.toString();
+      res.redirect(app.reverse('updateCourse', { id }));
     }
   });
 
   // Deleting a specific course:
   app.delete('/courses/:id', { name: 'deleteCourse' }, (req, res) => {
     const { id } = req.params;
-    const courseIndex = courses.findIndex((item) => item.id === parseInt(id));
+    const courseIndex = courses.findIndex((item) => item.id === id);
     if (courseIndex === -1) {
       res.code(404).send({ message: 'Course not found' });
     } else {
