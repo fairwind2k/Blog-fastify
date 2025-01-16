@@ -9,13 +9,13 @@ export default (app, db) => {
 
     const users = [
       {
-        id: 1,
+        id: '1a',
         name: 'first user',
         email: 'first@user.com',
         password: 'user12345'
       },
       {
-        id: 2,
+        id: '2a',
         name: 'Second User',
         email: 'second@user.com',
         password: 'user12345'
@@ -89,7 +89,7 @@ export default (app, db) => {
         //states.users.push(user);
         users.push(user);
         //res.send(user);
-        res.redirect(app.reverse('users'), { users });
+        res.redirect(app.reverse('users'));
       });
 
     //Find a specific user: 
@@ -97,7 +97,7 @@ export default (app, db) => {
         const escapedId = sanitize(req.params.userId);
         //const user = users.find(({ id }) => id === escapedId);
         // test number id:
-        const user = users.find(({ id }) => id === parseInt(escapedId));
+        const user = users.find(({ id }) => id === escapedId);
         if (!user) {
           return res.status(404).send('User not found');
         }
@@ -108,7 +108,7 @@ export default (app, db) => {
     // Form for en editing specific user:
     app.get('/users/:id/edit',  { name: 'editUser' }, (req, res) => {
       const { id } = req.params;
-      const user = users.find((item) => item.id === parseInt(id));
+      const user = users.find((item) => item.id === id);
       if (!user) {
         res.code(404).send({ message: 'User not found' });
       } else {
@@ -120,15 +120,13 @@ export default (app, db) => {
     app.patch('/users/:id', { name: 'updateUser' }, (req, res) => {
       const { id } = req.params;
       const { name, email, password, passwordConfirmation, } = req.body;
-      const userIndex = users.findIndex((item) => item.id === parseInt(id));
+      const userIndex = users.findIndex((item) => item.id === id);
       if (userIndex === -1) {
         res.code(404).send({ message: 'User not found' });
       } else {
         users[userIndex] = { ...users[userIndex], name, email };
         // res.send(users[userIndex]);
-        // in this sample we need convert number to string again:
-        const stringId = id.toString();
-        res.redirect(app.reverse('updateUser', { id: stringId }));
+        res.redirect(app.reverse('updateUser', { id }));
         // res.redirect('/users');
       }
     });
@@ -136,7 +134,7 @@ export default (app, db) => {
     // Удаление пользователя
     app.delete('/users/:id', { name: 'deleteUser' }, (req, res) => {
       const { id } = req.params;
-      const userIndex = users.findIndex((item) => item.id === parseInt(id));
+      const userIndex = users.findIndex((item) => item.id === id);
       if (userIndex === -1) {
         res.code(404).send({ message: 'User not found' });
       } else {
