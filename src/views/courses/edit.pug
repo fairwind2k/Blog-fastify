@@ -4,13 +4,13 @@ block content
   if error
     p= error.message 
 
-  form(action=route('updateCourse', { id: course.id }) method='post')
+  form(action=route('updateCourse', { id: course.id }) + '?_method=PATCH', method="post")
     div
       label name:
-        input(id= "title" name= "title" value= course.title)
+      input(id="title" name="title" value=course.title)
     div
       label email:
-        input(id= "description" name= "description" value= course.description)
+      input(id="description" name="description" value=course.description)
 
     input(name="_method" type="hidden" value="patch")
-    input(type = 'submit', value = 'Submit')
+    input(type="submit" value="Submit")
