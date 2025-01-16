@@ -5,7 +5,7 @@ block content
     p= error.message 
 
   // form(action=`/users/${user.id}` method='post')
-  form(action=route('updateUser', { id: user.id }) method='post')
+  form(action=route('updateUser', { id: user.id })+ '?_method=PATCH', method='post')
     div
       label name:
         input(id= "name" name= "name" value= user.name)

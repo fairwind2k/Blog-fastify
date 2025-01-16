@@ -7,6 +7,6 @@ block content
     div
         a(href=route('editUser', { id: user.id })) Edit user
 
-        form(action=route('deleteUser', { id: user.id }), method="post")
+        form(action=route('deleteUser', { id: user.id }) + '?_method=DELETE', method="post")
           input(name="_method" type="hidden" value="DELETE")
           input(type='submit', value="Удалить")
