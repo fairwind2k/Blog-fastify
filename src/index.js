@@ -14,7 +14,11 @@ import getCompanies from './utils/fakeCompanies.js';
 import addRoutes from './routes/index.js';
 
 export default async () => {
-  const app = fastify({ exposeHeadRoutes: false });
+  const wrappedFastify = wrapFastify(fastify);
+  const app = wrappedFastify({
+    // any fastify options, for example logger
+    exposeHeadRoutes: false,
+  });
   const route = (name, placeholdersValues) => app.reverse(name, placeholdersValues);
 
   await app.register(view, {
@@ -23,6 +27,7 @@ export default async () => {
       route,
     },
   });
+
   await app.register(formbody);
   await app.register(fastifyReverseRoutes);
   // await app.register(fastifyMethodOverride);
@@ -37,7 +42,6 @@ export default async () => {
   const companies = getCompanies();
  
   const data = {
-    phones: ['+12345678', '3434343434', '234-56-78'],
     domains: ['example.com', 'hexlet.io'],
   };
 
