@@ -1,9 +1,19 @@
 extends ../layouts/page.pug
 
 block content
+
     if error
-        p= error.message 
-        
+        p= error.message
+
+    .container.wrapper.flex-grow-1.p-2
+        if flash && flash.warning
+            for message in flash.warning 
+                .alert(class='alert-warning')
+                    = message
+        if flash && flash.success
+            .alert(class='alert-success')
+                = flash.success
+
     form(action = '/users', method = 'post')
         div
             label name:
