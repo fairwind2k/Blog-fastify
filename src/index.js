@@ -16,7 +16,6 @@ import addRoutes from './routes/index.js';
 export default async () => {
   const wrappedFastify = wrapFastify(fastify);
   const app = wrappedFastify({
-    // any fastify options, for example logger
     exposeHeadRoutes: false,
   });
   const route = (name, placeholdersValues) => app.reverse(name, placeholdersValues);
