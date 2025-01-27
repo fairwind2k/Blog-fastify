@@ -14,7 +14,23 @@ body
         a(href='/') Main page
         p
         p
-        p
+        
+    .container.wrapper.flex-grow-1.p-2
+        if flash && flash.warning
+            for message in flash
+                .alert(class='alert-warning')
+                    = message
+
+        if flash && flash.success
+            for message in flash
+                .alert(class='alert-success')
+                    = message
+
+        if flash && flash.info
+            for message in flash
+                .alert(class='alert-info')
+                    = message
+    
     block content
     p
     p
