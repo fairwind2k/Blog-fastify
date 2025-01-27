@@ -24,19 +24,28 @@ export default (app, db) => {
 
     // Get a list of users:
     app.get('/users', { name: 'users'}, (req, res) => {
-        const term = req.query.term;
-        let filtered = users;
-        if (term) {
-          filtered = users.filter((user) => user.name.toLowerCase().includes(term.toLowerCase()));
-        } else {
-          res.view('src/views/users/index', { users });
-        }
-        res.view('src/views/users/index', { users: filtered });
-      });
+      const term = req.query.term;
+      let filtered = users;
+      if (term) {
+        filtered = users.filter((user) => user.name.toLowerCase().includes(term.toLowerCase()));
+      } else {
+        res.view('src/views/users/index', { users });
+      }
+      const templateData = {
+        flash: res.flash(),
+        users: filtered,
+      };
+      res.view('src/views/users/index', templateData);
+      
+    });
 
     // Form for creating new user:
     app.get('/users/new', { name: 'newUser' }, (req, res) => {
-        res.view('src/views/users/new');
+      // const data = {
+      //   flash: res.flash(),
+      // };
+      //res.view('src/views/users/new', data);
+      res.view('src/views/users/new');
     });
 
     // Create user:
@@ -44,10 +53,10 @@ export default (app, db) => {
         attachValidation: true,
         schema: {
           body: yup.object({
-            name: yup.string().min(2),
-            email: yup.string().email(),
-            password: yup.string().min(5),
-            passwordConfirmation: yup.string().min(5),
+            name: yup.string().min(2).required(),
+            email: yup.string().email().required(),
+            password: yup.string().min(5).required(),
+            passwordConfirmation: yup.string().min(5).required(),
           }),
         },
         validatorCompiler: ({ schema, method, url, httpPart }) => (data) => {
@@ -64,31 +73,38 @@ export default (app, db) => {
           }
         },
       } , (req, res) => {
-        const { name, email, password, passwordConfirmation } = req.body;
-    
+        const { name, email, password, passwordConfirmation } = req.body;    
         const userData = {
           name: name.trim(),
           email: email.trim(),
           password: password,
           passwordConfirmation: passwordConfirmation,
         };
+
         if (req.validationError) {
+          // req.flash('warning', req.validationError);
+          // const data = { 
+          //   ...userData,
+          //   flash: res.flash(),
+          // };
+
           const data = { 
             ...userData,
             error: req.validationError,
-          };  
+          };
           res.view('src/views/users/new', data);
           return;
-        };    
+        };
+
         const user = { 
           id:generateId(),
           name: userData.name,
           email: userData.email,
           password: userData.password
         };
-        //states.users.push(user);
+
         users.push(user);
-        //res.send(user);
+        req.flash('success', 'Пользователь был успешно создан!');
         res.redirect(app.reverse('users'));
       });
 
