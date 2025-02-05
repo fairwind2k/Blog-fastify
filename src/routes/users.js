@@ -12,13 +12,13 @@ export default (app, db) => {
         id: '1a',
         name: 'first user',
         email: 'first@user.com',
-        password: 'user12345'
+        password: 'user1'
       },
       {
         id: '2a',
-        name: 'Second User',
+        name: 'second user',
         email: 'second@user.com',
-        password: 'user12345'
+        password: 'user2'
       },
     ];
 
@@ -41,11 +41,11 @@ export default (app, db) => {
 
     // Form for creating new user:
     app.get('/users/new', { name: 'newUser' }, (req, res) => {
-      // const data = {
-      //   flash: res.flash(),
-      // };
-      //res.view('src/views/users/new', data);
-      res.view('src/views/users/new');
+      const data = {
+        flash: res.flash(),
+      };
+      res.view('src/views/users/new', data);
+      // res.view('src/views/users/new');
     });
 
     // Create user:
@@ -82,16 +82,16 @@ export default (app, db) => {
         };
 
         if (req.validationError) {
-          // req.flash('warning', req.validationError);
-          // const data = { 
-          //   ...userData,
-          //   flash: res.flash(),
-          // };
-
+          req.flash('warning', req.validationError);
           const data = { 
             ...userData,
-            error: req.validationError,
+            flash: res.flash(),
           };
+
+          // const data = { 
+          //   ...userData,
+          //   error: req.validationError,
+          // };
           res.view('src/views/users/new', data);
           return;
         };
