@@ -25,47 +25,55 @@ export default (app, db) => {
     },
   ];
 
-    // const state = {
-  //   courses: [
-  //     {
-  //       id: 1,
-  //       title: 'JS: Массивы',
-  //       description: 'Курс про массивы в JavaScript',
-  //     },
-  //     {
-  //       id: 2,
-  //       title: 'JS: Функции',
-  //       description: 'Курс про функции в JavaScript',
-  //     },
-  //     {
-  //       id: 3,
-  //       title: 'JS: Объекты',
-  //       description: 'Курс про объекты в JavaScript',
-  //     },
-  //   ],
-  // };
+  // app.get("/courses", { name: "courses" }, (req, res) => {
+  //   const term = req.query.term;
+  //   let selectedCourses = courses;
+  //   if (term) {
+  //     // Фильтруем курсы по term
+  //     selectedCourses = courses.filter((item) =>
+  //       item.title.toLowerCase().includes(term.toLowerCase())
+  //     );
+  //   } else {
+  //     //   // Извлекаем все курсы, которые хотим показать
+  //     selectedCourses = courses.slice(0, 5);
+  //   }
+  //   res.view("src/views/courses/index", { courses: selectedCourses });
+  // });
 
   app.get("/courses", { name: "courses" }, (req, res) => {
-    const term = req.query.term;
-    let selectedCourses = courses;
-    if (term) {
-      // Фильтруем курсы по term
-      selectedCourses = courses.filter((item) =>
-        item.title.toLowerCase().includes(term.toLowerCase())
-      );
-    } else {
-      //   // Извлекаем все курсы, которые хотим показать
-      selectedCourses = courses.slice(0, 5);
-    }
-    res.view("src/views/courses/index", { courses: selectedCourses });
+    db.all('SELECT * FROM courses', (error, data) => {
+      const templateData = {
+        courses: data,
+        flash: res.flash(),
+        error,
+      };
+      res.view('src/views/courses/index', templateData);
+    });
   });
 
   app.get('/courses/new', (req, res) => {
     res.view('src/views/courses/new');
   });
 
-  app.post(
-    "/courses",
+  app.get('/courses/:id', (req, res) => {
+    const id = sanitize(req.params.id);
+    db.get(`SELECT * FROM courses WHERE id = ${id}`, (error, data) => {
+      if (error || !data ) {
+        // console.error('Ошибка при запросе к базе данных:', error);
+        req.flash('warning', 'course not found');
+        res.redirect(app.reverse('courses'));
+        return;
+      }
+      console.log('Данные курса:', data);
+      const templateData = {
+        course: data,
+        flash: res.flash(),
+      };
+      res.view("src/views/courses/show", templateData);
+    });
+  }); 
+
+  app.post("/courses",
     {
       attachValidation: true,
       schema: {
@@ -105,28 +113,34 @@ export default (app, db) => {
     }
   );
 
-  //  get all courses in one page:
-  //
-  // app.get('/courses', (req, res)=> {
-  //   //const data = state.courses;
-  //   const data = courses;
-  //   res.view('src/views/courses/index', { data });
+ 
+  // app.get("/courses/:id", (req, res) => {
+  //     const escapedCourseId = sanitize(req.params.id);
+  //     // const course = state.courses.find((item) => item.id.toString() === escapedCourseId);
+  //     const course = courses.find(
+  //     (item) => item.id.toString() === escapedCourseId
+  //     );
+  //     if (!course) {
+  //     return res.code(404).send({ message: "Course not found" });
+  //     }
+  //     const data = {
+  //     course,
+  //     };
+  //     return res.view("src/views/courses/show", data);
   // });
-  
-  app.get("/courses/:id", (req, res) => {
-      const escapedCourseId = sanitize(req.params.id);
-      // const course = state.courses.find((item) => item.id.toString() === escapedCourseId);
-      const course = courses.find(
-      (item) => item.id.toString() === escapedCourseId
-      );
-      if (!course) {
-      return res.code(404).send({ message: "Course not found" });
-      }
-      const data = {
-      course,
-      };
-      return res.view("src/views/courses/show", data);
-  });
+
+  // app.get('/courses/:id', (req, res) => {
+  //   const id = sanitize(req.params.id);
+  //   db.get(`SELECT * FROM courses WHERE id = ${id}`, (err, data) => {
+  //     const templateData = {
+  //       course: data,
+  //       error: err,
+  //     };
+  //     console.log('templateData:', templateData);
+  //     res.view("src/views/courses/show", templateData);
+  //   });
+  // });
+    
 
   app.get('/courses/:courseId/lessons/:lessonId', (req, res) => {
     res.send(`Course ID: ${req.params.courseId}; Lesson ID: ${req.params.lessonId}`);

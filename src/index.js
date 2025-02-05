@@ -3,22 +3,54 @@ import formbody from '@fastify/formbody';
 import view from '@fastify/view';
 import pug from 'pug';
 import fastifyCookie from '@fastify/cookie';
-// import fastifyCookie from 'fastify-cookie';
-import session from '@fastify/secure-session';
-// import session from 'fastify-session';
+import fastifySession from '@fastify/secure-session';
 import flash from '@fastify/flash';
 import { plugin as fastifyReverseRoutes } from 'fastify-reverse-routes';
-// import fastifyMethodOverride from 'fastify-method-override';
 import wrapFastify from 'fastify-method-override-wrapper';
+import sqlite3 from 'sqlite3';
 import getCompanies from './utils/fakeCompanies.js';
 import addRoutes from './routes/index.js';
 
 export default async () => {
   const wrappedFastify = wrapFastify(fastify);
   const app = wrappedFastify({
+    logger: false,
     exposeHeadRoutes: false,
   });
   const route = (name, placeholdersValues) => app.reverse(name, placeholdersValues);
+  const db = new sqlite3.Database(':memory:');
+
+  const prepareDatabase = () => {
+    db.serialize(() => {
+      db.run(`
+        CREATE TABLE courses (
+          id INT PRIMARY KEY,
+          title VARCHAR(255) NOT NULL,
+          description TEXT
+        );
+      `);
+    });
+
+    const courses = [
+      { id: 1, title: 'JavaScript', description: 'Курс по языку программирования JavaScript' },
+      { id: 2, title: 'Fastify', description: 'Курс по фреймворку Fastify' },
+    ];
+
+    const stmt = db.prepare('INSERT INTO courses VALUES (?, ?, ?)');
+  
+    courses.forEach((course) => {
+      stmt.run(course.id, course.title, course.description);
+    });
+  
+    stmt.finalize();
+  };
+
+  prepareDatabase();
+
+  const companies = getCompanies(); 
+  const data = {
+    domains: ['example.com', 'hexlet.io'],
+  };
 
   await app.register(view, {
     engine: { pug },
@@ -26,29 +58,18 @@ export default async () => {
       route,
     },
   });
-
   await app.register(formbody);
   await app.register(fastifyReverseRoutes);
-  // await app.register(fastifyMethodOverride);
-  await app.register(wrapFastify);
   await app.register(fastifyCookie);
-  await app.register(session, {
+  await app.register(fastifySession, {
+    cookie: {
+      // Настройки куки, например:
+      secure: false, // Установите true, если используете HTTPS
+    },
     secret: 'a secret with minimum length of 32 characters',
-    cookie: { secure: false },
   });
   await app.register(flash);
 
-  const companies = getCompanies();
- 
-  const data = {
-    domains: ['example.com', 'hexlet.io'],
-  };
-
-  // app.get('/cookies', (req, res) => {
-  //   console.log(req.cookies);  
-  //   res.send();
-  // });
-  
   app.get('/', (req, res) => {
     const visited = req.cookies.visited;
     const templateData = {
@@ -63,9 +84,6 @@ export default async () => {
   //   req.session.counter += 1;
   //   res.send(`Counter incremented: ${req.session.counter}`);
   // });
-  
-
-  // app.get('/', (req, res) => res.view('src/views/index'));
   
   app.get('/hello', (req, res)=> {
     let greet;
@@ -85,8 +103,7 @@ export default async () => {
     res.send(data.domains);
   });
   
-   // addRoutes(app, db);
-  addRoutes(app);
+  addRoutes(app, db);
   return app;
 };
 
