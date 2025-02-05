@@ -1,0 +1,13 @@
+block content
+
+  .container.mt-5
+
+    if username
+      h3.text-center.mb-4 Добро пожаловать, #{username}
+      form.text-center(action="/sessions/delete", method="POST")
+        button.btn.btn-danger(type="submit") Выйти
+    
+    else
+      h3.text-center.mb-4 Добро пожаловать, гость
+      p.text-center
+        a.btn.btn-primary(href="/sessions/new") Войти
