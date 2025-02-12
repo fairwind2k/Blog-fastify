@@ -51,20 +51,27 @@ export default (app, db) => {
     });
   });
 
-  app.get('/courses/new', (req, res) => {
+  app.get('/courses/new', { name: 'newCourse' }, (req, res) => {
     res.view('src/views/courses/new');
   });
 
   app.get('/courses/:id', (req, res) => {
     const id = sanitize(req.params.id);
+    if (!Number.isInteger(Number(id)) || id <= 0) {
+      req.flash('warning', 'Некорректный идентификатор курса');
+      return res.redirect(app.reverse('courses'));
+    }
     db.get(`SELECT * FROM courses WHERE id = ${id}`, (error, data) => {
-      if (error || !data ) {
-        // console.error('Ошибка при запросе к базе данных:', error);
+      if (error) {
         req.flash('warning', 'course not found');
         res.redirect(app.reverse('courses'));
         return;
       }
-      console.log('Данные курса:', data);
+      if (!data) {
+        req.flash('warning', 'Курс не найден');
+        res.redirect(app.reverse('courses'));
+        return;
+      }
       const templateData = {
         course: data,
         flash: res.flash(),
@@ -94,25 +101,35 @@ export default (app, db) => {
         },
     },
     (req, res) => {
-      const dataCourse = {
-        title: req.body.title.trim(),
-        description: req.body.description.trim(),
-      };
+      const { title, description } = req.body;
+
       if (req.validationError) {
+        req.flash('warning', req.validationError);
         const data = {
-          ...dataCourse,
-          error: req.validationError,
+          title,
+          description,
+          flash: res.flash(),
         };
         res.view("src/views/courses/new", data);
         return;
       }
-      const newCourse = { id: generateId(), ...dataCourse };
-      courses.push(newCourse);
-      //res.send(newCourse);
-      res.redirect(app.reverse('courses'));
-    }
-  );
-
+      const course = {
+        title,
+        description,
+      };
+      
+      const stmt = db.prepare('INSERT INTO courses(title, description) VALUES(?, ?)');
+      stmt.run([course.title, course.description], function (error) {
+        if (error) {
+          console.error('Database error:', error);
+          req.flash('warning', 'Ошибка создания курса');
+          res.redirect(app.reverse('newCourse'));
+          return;
+        }
+        req.flash('success', 'Курс успешно создан');
+        res.redirect(`/courses/${this.lastID}`);
+      });
+  });
  
   // app.get("/courses/:id", (req, res) => {
   //     const escapedCourseId = sanitize(req.params.id);
@@ -139,8 +156,7 @@ export default (app, db) => {
   //     console.log('templateData:', templateData);
   //     res.view("src/views/courses/show", templateData);
   //   });
-  // });
-    
+  // });    
 
   app.get('/courses/:courseId/lessons/:lessonId', (req, res) => {
     res.send(`Course ID: ${req.params.courseId}; Lesson ID: ${req.params.lessonId}`);
