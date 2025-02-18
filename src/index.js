@@ -24,7 +24,7 @@ export default async () => {
     db.serialize(() => {
       db.run(`
         CREATE TABLE courses (
-          id INT PRIMARY KEY,
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
           title VARCHAR(255) NOT NULL,
           description TEXT
         );
